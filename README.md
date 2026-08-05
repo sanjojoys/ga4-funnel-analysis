@@ -1,46 +1,38 @@
-# GA4 E-Commerce Funnel & Channel Analysis (BigQuery + Looker Studio)
+# E-Commerce Growth Diagnostic: GA4 + BigQuery + Looker Studio
 
-Session-level funnel and channel performance analysis built directly on the raw GA4
-BigQuery event export, visualized in an interactive Looker Studio dashboard.
+An analytics-consulting style engagement built on raw GA4 event data: funnel diagnosis,
+cohort retention, catalogue analysis, and a channel budget reallocation model, with an
+executive brief and an explicit measurement-design section.
 
 **Live dashboard:** [ADD LOOKER STUDIO LINK HERE]
+**Executive brief:** [analysis/EXECUTIVE_BRIEF.md](analysis/EXECUTIVE_BRIEF.md)
+**Measurement design:** [analysis/METHODOLOGY.md](analysis/METHODOLOGY.md)
 
-## What this shows
+## Data
 
-- Rebuilding sessions and a purchase funnel (view_item -> add_to_cart -> begin_checkout -> purchase)
-  from raw GA4 event data with SQL, not from pre-aggregated GA4 reports
-- Channel performance: sessions, conversion rate, revenue, and revenue per session by source/medium
-- Daily KPI trends: sessions, users, conversion rate, revenue, average order value
+`bigquery-public-data.ga4_obfuscated_sample_ecommerce` - the Google Merchandise Store
+GA4 export, roughly 4M+ events across ~270k users, Nov 2020 to Jan 2021. Analysis is
+built on the raw event stream rather than pre-aggregated GA4 reports.
 
-Data: `bigquery-public-data.ga4_obfuscated_sample_ecommerce` (Google Merchandise Store,
-Nov 2020 - Jan 2021, obfuscated public sample).
+## Analyses
 
-## Structure
+| Query | Question it answers |
+|-------|--------------------|
+| `01_session_funnel.sql` | Where do sessions leak between view, cart, checkout, and purchase? |
+| `02_channel_performance.sql` | Which channels deliver revenue per session, not just traffic? |
+| `03_daily_kpis.sql` | How do sessions, conversion, and AOV trend over the period? |
+| `04_cohort_retention.sql` | Which channels acquire users who return and buy again? |
+| `05_longtail_vs_head.sql` | Is tail revenue constrained by demand or by exposure? |
+| `06_budget_reallocation.sql` | Which channels are over- or under-funded relative to the value they deliver? |
 
-```
-sql/
-  01_session_funnel.sql        Funnel stages by date, channel, device
-  02_channel_performance.sql   Channel-level conversion and revenue metrics
-  03_daily_kpis.sql            Daily trend KPIs
-```
+Each runs as a custom query against the BigQuery connector in Looker Studio.
 
-Each query is used as a custom query in Looker Studio's BigQuery connector, so the
-dashboard reads straight from the event-level export.
+## What this project is trying to demonstrate
 
-## Example insight
-
-Mobile sessions show a materially weaker cart-to-checkout rate than desktop across most
-channels in this period, while view-to-cart rates are comparable. If this were a client
-engagement, the recommendation would be to prioritize mobile checkout friction (payment
-options, form length) over top-of-funnel spend, and to validate any fix with a holdout
-or pre/post design with a control before scaling it.
-
-## Known limitations (deliberate)
-
-- `traffic_source` in the GA4 export is user-scoped (first touch). Session-scoped
-  attribution would use `collected_traffic_source`, which this 2020 sample predates.
-  Channel figures therefore reflect acquisition source, not per-session source.
-- The sample is obfuscated and truncated by Google; absolute figures are illustrative.
+Not pipeline engineering. The point is the consulting chain: diagnose a business
+constraint from event-level data, quantify it, recommend an action, and state the
+experiment that would prove the recommendation before a client funds it. The
+methodology document is deliberately as detailed as the SQL.
 
 ## Author
 
